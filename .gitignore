@@ -1,42 +1,63 @@
-# OS / Editor
+# OS-specific
 .DS_Store
 Thumbs.db
-Desktop.ini
+desktop.ini
 
-# IDE / Workspace
+# Editors/IDEs
 .vscode/
 .idea/
-*.code-workspace
+.vs/
 
-# Environment / Logs
-.env
-.env.local
-.env.*.local
-*.log
-
-# Node / Web (incl. Angular)
+# Node / Angular
 **/node_modules/
 **/dist/
+**/.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Flutter / Dart
 **/build/
-**/coverage/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
 
-# Flutter / Mobile
-mobile/.dart_tool/
-mobile/build/
-mobile/.flutter-plugins*
-mobile/android/.gradle/
-mobile/android/local.properties
-mobile/ios/Pods/
-mobile/ios/Flutter/ephemeral/
-
-# .NET / Visual Studio (authApi dahil)
+# .NET
 **/bin/
 **/obj/
-**/.vs/
-**/*.user
-**/*.suo
+*.user
+*.suo
 
-# Local databases / misc
-**/*.db
-*.pid
-*.pid.lock
+# iOS / macOS (Xcode)
+**/Pods/
+**/DerivedData/
+**/xcuserdata/
+*.xcuserstate
+
+# Android
+**/.gradle/
+**/local.properties
+*.keystore
+*.jks
+
+# Logs
+*.log
+**/logs/
+
+# Env / secrets
+.env
+.env.*
+*.env
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Coverage / test output
+coverage/
+**/TestResults/

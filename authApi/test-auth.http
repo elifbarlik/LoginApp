@@ -1,0 +1,54 @@
+### Test JWT Authentication Flow
+
+### 0. User Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "username": "exampleuser",
+  "password": "password123"
+}
+
+### 1. User Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### 2. Get User Profile (with token from login)
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{accessToken}}
+
+### 3. Get User Info (with token from login)
+GET {{baseUrl}}/user/info
+Authorization: Bearer {{accessToken}}
+
+### 4. Refresh Token
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{accessToken}}",
+  "refreshToken": "{{refreshToken}}"
+}
+
+### 5. Update Profile (email/username/phone/address are optional; send only what you want to change)
+PUT {{baseUrl}}/user/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": "newmail@example.com",
+  "username": "newusername",
+  "phone": "+90 555 123 45 67",
+  "address": "Istanbul, Turkiye"
+}
+
+### Variables
+@baseUrl = https://localhost:7001
+@accessToken = YOUR_ACCESS_TOKEN_HERE
+@refreshToken = YOUR_REFRESH_TOKEN_HERE

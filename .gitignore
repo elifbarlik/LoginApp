@@ -14,27 +14,29 @@ Desktop.ini
 .env.*.local
 *.log
 
-# Node / Web
+# Node / Web (incl. Angular)
 **/node_modules/
 **/dist/
 **/build/
-**/.cache/
 **/coverage/
 
-# Flutter / Android / iOS
-**/.dart_tool/
-**/.flutter-plugins*
-**/.packages
-**/android/.gradle/
-**/android/local.properties
-**/ios/Pods/
-**/ios/Flutter/ephemeral/
+# Flutter / Mobile
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins*
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/ios/Pods/
+mobile/ios/Flutter/ephemeral/
 
-# .NET / Visual Studio
+# .NET / Visual Studio (authApi dahil)
 **/bin/
 **/obj/
 **/.vs/
+**/*.user
+**/*.suo
 
-# Misc
+# Local databases / misc
+**/*.db
 *.pid
 *.pid.lock

@@ -1,0 +1,40 @@
+<div class="split">
+  <div class="left">
+    <div class="logo">LOGIFY</div>
+    <div class="illustration scooter"></div>
+  </div>
+  <div class="right">
+    <mat-card class="auth-card">
+      <div class="header">
+        <div>
+          <div class="welcome">Welcome to Logify</div>
+          <h1>Sign up</h1>
+        </div>
+        <div class="alt">Have an Account ? <a routerLink="/login">Sign in</a></div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" #f="ngForm" class="form">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Enter your email address</mat-label>
+          <input matInput name="email" [(ngModel)]="email" type="email" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Choose a username</mat-label>
+          <input matInput name="username" [(ngModel)]="username" type="text" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Enter your Password</mat-label>
+          <input matInput name="password" [(ngModel)]="password" type="password" required />
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="cta" type="submit">Sign up</button>
+
+        <div class="error" *ngIf="error">{{ error }}</div>
+      </form>
+    </mat-card>
+
+    <div class="illustration girl"></div>
+  </div>
+</div>

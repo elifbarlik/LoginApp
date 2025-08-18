@@ -1,0 +1,199 @@
+<mat-toolbar color="primary" class="toolbar">
+  <div class="brand">
+    <span class="logo">Logify</span>
+  </div>
+  <span class="spacer"></span>
+  <div class="user" *ngIf="profile">
+    <span class="role">{{ profile.role }}</span>
+    <span class="email">{{ profile.username || profile.email }}</span>
+    <div class="avatar">{{ profile.email[0] | uppercase }}</div>
+    <button mat-stroked-button (click)="logout()">Logout</button>
+  </div>
+  <button *ngIf="!profile" mat-stroked-button color="primary" (click)="logout()">Login</button>
+</mat-toolbar>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Your account overview and quick settings</p>
+  </div>
+  <mat-divider></mat-divider>
+  
+</div>
+
+<div class="container">
+  <div *ngIf="loading" class="loading">
+    <mat-icon class="mi-out">hourglass_empty</mat-icon>
+    Loading your workspace...
+  </div>
+  <div class="error" *ngIf="!loading && error">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && profile">
+    <div class="grid">
+      <mat-card class="profile">
+        <div class="card-header">
+          <div>
+            <h2>Welcome back</h2>
+            <p class="muted">Here is your account overview</p>
+          </div>
+          <mat-icon class="mi-out" color="primary">person</mat-icon>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">User ID</div>
+            <div class="value mono">{{ profile.id }}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Role</div>
+            <div class="value">{{ profile.role }}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Created</div>
+            <div class="value">{{ profile.createdAtUtc | date:'medium' }}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Last Login</div>
+            <div class="value">{{ profile.lastLoginAtUtc || '-' }}</div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="update">
+        <div class="card-header">
+          <div>
+            <h2>Profile settings</h2>
+            <p class="muted">Update your profile information</p>
+          </div>
+          <mat-icon class="mi-out" color="primary">settings</mat-icon>
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="editingEmail" type="email" />
+          </mat-form-field>
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Username</mat-label>
+            <input matInput [(ngModel)]="editingUsername" type="text" />
+          </mat-form-field>
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Phone</mat-label>
+            <input matInput [(ngModel)]="editingPhone" type="text" />
+          </mat-form-field>
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Address</mat-label>
+            <input matInput [(ngModel)]="editingAddress" type="text" />
+          </mat-form-field>
+        </div>
+        <div class="success" *ngIf="success">{{ success }}</div>
+        <div class="actions">
+          <button mat-stroked-button>Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveProfile()">Save changes</button>
+        </div>
+      </mat-card>
+    </div>
+    <mat-card class="admin" *ngIf="isAdmin">
+      <div class="card-header">
+        <div>
+          <h2>Admin panel</h2>
+          <p class="muted">Manage users and view stats</p>
+        </div>
+        <mat-icon class="mi-out" color="primary">admin_panel_settings</mat-icon>
+      </div>
+
+      <div class="section">
+        <h3>Statistics</h3>
+        <div *ngIf="statsLoading">Loading stats...</div>
+        <div *ngIf="!statsLoading && stats">
+          <div>Total users: {{ stats.totalUsers }}</div>
+          <div>By role: User {{ (stats.byRole && stats.byRole['User']) || 0 }}, Admin {{ (stats.byRole && stats.byRole['Admin']) || 0 }}</div>
+          <div>Latest users:</div>
+          <ul>
+            <li *ngFor="let u of (stats.latestUsers || [])">{{ u.email }} - {{ u.role }} - {{ u.createdAtUtc | date:'short' }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="users-layout">
+        <div class="section users-section">
+          <h3>Users</h3>
+          <div class="controls">
+            <button mat-stroked-button (click)="filterRole=''; fetchUsers()">All</button>
+            <button mat-stroked-button (click)="filterRole='User'; fetchUsers()">Users</button>
+            <button mat-stroked-button (click)="filterRole='Admin'; fetchUsers()">Admins</button>
+            <button mat-stroked-button (click)="fetchUsers()">Refresh</button>
+          </div>
+          <div *ngIf="usersLoading">Loading users...</div>
+          <table class="users" *ngIf="!usersLoading">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of users">
+                <td>{{ u.email }}</td>
+                <td>{{ u.role }}</td>
+                <td>
+                  <button mat-stroked-button color="primary" (click)="selectUser(u)">Edit</button>
+                  <button mat-stroked-button color="warn" (click)="deleteUser(u.id)">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section update-section" *ngIf="selectedUserId">
+          <h3>Update selected user</h3>
+          <div class="grid-2">
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Email</mat-label>
+              <input matInput [(ngModel)]="updateUserEmail" type="email" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Role</mat-label>
+              <input matInput [(ngModel)]="updateUserRole" />
+            </mat-form-field>
+          </div>
+          <div class="actions">
+            <button mat-raised-button color="primary" (click)="updateSelectedUser()">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="section">
+        <h3>Create user</h3>
+        <div class="grid-2">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="newUser.email" type="email" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Password</mat-label>
+            <input matInput [(ngModel)]="newUser.password" type="password" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Role</mat-label>
+            <input matInput [(ngModel)]="newUser.role" />
+          </mat-form-field>
+        </div>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="createUser()">Create</button>
+        </div>
+      </div>
+
+      <div class="success" *ngIf="success">{{ success }}</div>
+      <div class="error" *ngIf="error">{{ error }}</div>
+    </mat-card>
+  </ng-container>
+</div>

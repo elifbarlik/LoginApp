@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 type AuthResponse = {
@@ -49,9 +49,14 @@ export class AuthService {
   }
 
   refresh(): Observable<void> {
+    const access = this.getAccessToken();
+    const refresh = this.getRefreshToken();
+    if (!access || !refresh) {
+      return throwError(() => new Error('No tokens available for refresh'));
+    }
     const payload: RefreshRequest = {
-      accessToken: this.getAccessToken() ?? '',
-      refreshToken: this.getRefreshToken() ?? ''
+      accessToken: access,
+      refreshToken: refresh
     };
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/refresh`, payload).pipe(
       tap((res) => this.storeTokens(res)),
@@ -85,6 +90,11 @@ export class AuthService {
 
   getRole(): string | null {
     return localStorage.getItem(this.roleKey);
+  }
+
+  // Expose a safe way to clear local tokens without calling API
+  signOutLocal(): void {
+    this.clearTokens();
   }
 
   private storeTokens(res: AuthResponse) {

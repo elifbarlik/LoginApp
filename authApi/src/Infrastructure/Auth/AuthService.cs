@@ -41,7 +41,8 @@ public class AuthService : IAuthService
 		var existing = await _users.GetByEmailAsync(request.Email, cancellationToken);
 		if (existing is not null)
 		{
-			throw new InvalidOperationException("Email is already registered");
+			// Use a consistent message that ErrorController maps to 409 Conflict
+			throw new InvalidOperationException("Email already exists");
 		}
 
 		var user = new Domain.Entities.User

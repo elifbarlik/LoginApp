@@ -26,7 +26,10 @@ class ApiClient {
         handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401 && !_isRefreshing) {
+        // Only try refresh for non-auth endpoints
+        final path = error.requestOptions.path;
+        final isAuth = RegExp(r"/auth/(login|register|google|refresh)", caseSensitive: false).hasMatch(path);
+        if (error.response?.statusCode == 401 && !_isRefreshing && !isAuth) {
           final refreshed = await _refreshTokens();
           if (refreshed) {
             final accessToken = await TokenStorage.getAccessToken();
@@ -39,6 +42,10 @@ class ApiClient {
               return handler.reject(error);
             }
           }
+        }
+        // If refresh endpoint itself failed, clear tokens
+        if (path.contains('/auth/refresh') && (error.response?.statusCode == 400 || error.response?.statusCode == 401)) {
+          await TokenStorage.clearTokens();
         }
         handler.next(error);
       },

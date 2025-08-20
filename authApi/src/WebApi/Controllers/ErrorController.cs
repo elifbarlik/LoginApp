@@ -34,7 +34,18 @@ public class ErrorController : ControllerBase
 		}
 		else if (exception is InvalidOperationException)
 		{
-			statusCode = message.Contains("not found", StringComparison.OrdinalIgnoreCase) ? 404 : 400;
+			if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+			{
+				statusCode = 404;
+			}
+			else if (message.Contains("already", StringComparison.OrdinalIgnoreCase) || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase))
+			{
+				statusCode = 409; // Conflict (e.g., email already registered)
+			}
+			else
+			{
+				statusCode = 400;
+			}
 		}
 		else if (exception is KeyNotFoundException)
 		{

@@ -11,9 +11,9 @@
   display: flex; align-items: center; justify-content: center;
 }
 .logo { position: absolute; top: 24px; left: 24px; font-weight: 800; color: rgba(0,0,0,.45); letter-spacing: .4px; }
-.illustration.scooter { width: 70%; height: 50%; background: url('/assets/scooter.png') center/contain no-repeat; filter: drop-shadow(0 8px 24px rgba(0,0,0,.12)); }
+.illustration.scooter {}
 .right { position: relative; display: grid; place-items: center; background: linear-gradient(180deg, #fffaf2, #fffaf2); }
-.illustration.girl { position: absolute; right: 48px; bottom: 64px; width: 260px; height: 260px; background: url('/assets/girl.png') center/contain no-repeat; pointer-events: none; opacity: .95; filter: drop-shadow(0 8px 24px rgba(0,0,0,.08)); }
+.illustration.girl {}
 .auth-card { width: 560px; border-radius: 24px; padding: 24px; box-shadow: var(--shadow-lg) !important; }
 .header { display: flex; align-items: start; justify-content: space-between; }
 .welcome { color: var(--muted); margin-top: 4px; margin-bottom: 6px; }

@@ -11,6 +11,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req).pipe(
         catchError((err: HttpErrorResponse) => {
             let message = 'An unexpected error occurred';
+            let suppressGlobalAlert = false;
 
             // Network or CORS errors often appear as status 0
             if (err.status === 0) {
@@ -28,9 +29,17 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                                 .map(e => `${e.field}: ${e.messages.join(', ')}`)
                                 .join('\n');
                             message = `${val.message ?? 'Validation failed'}\n${details}`;
+                            // Let components render field-level errors; avoid noisy alerts
+                            suppressGlobalAlert = true;
                         } else {
                             message = backendMessage ?? 'Bad request';
                         }
+                        break;
+                    }
+                    case 409: {
+                        message = backendMessage ?? 'Conflict';
+                        // Validation-like UX for conflicts: avoid global alert if component can show it
+                        suppressGlobalAlert = true;
                         break;
                     }
                     case 401: {
@@ -52,11 +61,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 }
             }
 
-            // Show alert to the user
-            try {
-                window.alert(message);
-            } catch (_) {
-                // In non-browser environments, just ignore
+            // Show alert to the user unless we want components to handle it
+            if (!suppressGlobalAlert) {
+                try {
+                    window.alert(message);
+                } catch (_) {
+                    // In non-browser environments, just ignore
+                }
             }
 
             return throwError(() => err);

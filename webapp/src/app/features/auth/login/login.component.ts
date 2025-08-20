@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { GoogleIdentityService } from '../../../core/services/google-identity.service';
 
 @Component({
   selector: 'app-login',
@@ -30,24 +29,36 @@ export class LoginComponent {
   email = '';
   password = '';
   error = '';
+  serverErrors: Record<string, string[]> = {};
 
-  constructor(private auth: AuthService, private router: Router, private google: GoogleIdentityService) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   onSubmit() {
     if (!this.email || !this.password) return;
+    this.error = '';
+    this.serverErrors = {};
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: () => this.router.navigateByUrl('/'),
-      error: (e) => this.error = (e?.error?.message || 'Giriş başarısız')
+      error: (e) => {
+        const body = e?.error;
+        const msg = body?.message as string | undefined;
+        this.error = msg || 'Giriş başarısız';
+
+        const errors = body?.errors as Array<{ field: string; messages: string[] }> | undefined;
+        if (Array.isArray(errors)) {
+          const map: Record<string, string[]> = {};
+          for (const err of errors) {
+            const rawKey = (err.field || '').toString();
+            const keyParts = rawKey.split('.');
+            const key = (keyParts[keyParts.length - 1] || '').toLowerCase();
+            if (!key) continue;
+            map[key] = (map[key] || []).concat(err.messages || []);
+          }
+          this.serverErrors = map;
+        }
+      }
     });
   }
 
-  loginWithGoogle() {
-    this.error = '';
-    this.google.signIn().then(idToken => {
-      this.auth.loginWithGoogle(idToken).subscribe({
-        next: () => this.router.navigateByUrl('/'),
-        error: (e) => this.error = (e?.error?.message || 'Google ile giriş başarısız')
-      });
-    }).catch(err => this.error = 'Google ile giriş iptal edildi');
-  }
+  
 }

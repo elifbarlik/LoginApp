@@ -1,7 +1,6 @@
 <div class="split">
   <div class="left">
     <div class="logo">LOGIFY</div>
-    <div class="illustration scooter"></div>
   </div>
   <div class="right">
     <mat-card class="auth-card">
@@ -13,28 +12,48 @@
         <div class="alt">Have an Account ? <a routerLink="/login">Sign in</a></div>
       </div>
 
-      <form (ngSubmit)="onSubmit()" #f="ngForm" class="form">
+      <form (ngSubmit)="onSubmit()" #f="ngForm" class="form" novalidate>
         <mat-form-field appearance="outline" class="full">
           <mat-label>Enter your email address</mat-label>
-          <input matInput name="email" [(ngModel)]="email" type="email" required />
+          <input matInput name="email" [(ngModel)]="email" type="email" required email pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$" maxlength="254" autocomplete="email" #emailCtrl="ngModel" />
+          <mat-error *ngIf="emailCtrl.invalid && (emailCtrl.dirty || f.submitted)">
+            <ng-container *ngIf="emailCtrl.errors?.['required']">Email is required</ng-container>
+            <ng-container *ngIf="emailCtrl.errors?.['email'] || emailCtrl.errors?.['pattern']">Enter a valid email (must include .domain)</ng-container>
+            <ng-container *ngIf="emailCtrl.errors?.['maxlength']">Email is too long</ng-container>
+          </mat-error>
+          <mat-error *ngIf="serverErrors['email']">{{ serverErrors['email'][0] }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">
           <mat-label>Choose a username</mat-label>
-          <input matInput name="username" [(ngModel)]="username" type="text" required />
+          <input matInput name="username" [(ngModel)]="username" type="text" required minlength="3" maxlength="32" pattern="^(?!.*@)[a-zA-Z0-9_\.\-]+$" autocomplete="username" #usernameCtrl="ngModel" />
+          <mat-error *ngIf="usernameCtrl.invalid && (usernameCtrl.dirty || f.submitted)">
+            <ng-container *ngIf="usernameCtrl.errors?.['required']">Username is required</ng-container>
+            <ng-container *ngIf="usernameCtrl.errors?.['minlength']">Minimum 3 characters</ng-container>
+            <ng-container *ngIf="usernameCtrl.errors?.['maxlength']">Maximum 32 characters</ng-container>
+            <ng-container *ngIf="usernameCtrl.errors?.['pattern']">Only letters, numbers, ., _ or -; cannot be an email</ng-container>
+          </mat-error>
+          <mat-error *ngIf="serverErrors['username']">{{ serverErrors['username'][0] }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">
           <mat-label>Enter your Password</mat-label>
-          <input matInput name="password" [(ngModel)]="password" type="password" required />
+          <input matInput name="password" [(ngModel)]="password" type="password" required minlength="8" maxlength="128" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,128}$" autocomplete="new-password" #passwordCtrl="ngModel" />
+          <mat-error *ngIf="passwordCtrl.invalid && (passwordCtrl.dirty || f.submitted)">
+            <ng-container *ngIf="passwordCtrl.errors?.['required']">Password is required</ng-container>
+            <ng-container *ngIf="passwordCtrl.errors?.['minlength']">Minimum 8 characters</ng-container>
+            <ng-container *ngIf="passwordCtrl.errors?.['maxlength']">Maximum 128 characters</ng-container>
+            <ng-container *ngIf="passwordCtrl.errors?.['pattern']">Must include upper, lower, number, and symbol; no spaces</ng-container>
+          </mat-error>
+          <mat-error *ngIf="serverErrors['password']">{{ serverErrors['password'][0] }}</mat-error>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" class="cta" type="submit">Sign up</button>
+        <button mat-raised-button color="primary" class="cta" type="submit" [disabled]="f.invalid">Sign up</button>
 
         <div class="error" *ngIf="error">{{ error }}</div>
       </form>
     </mat-card>
 
-    <div class="illustration girl"></div>
+    
   </div>
 </div>
